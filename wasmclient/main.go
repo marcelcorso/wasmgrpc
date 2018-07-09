@@ -1,7 +1,22 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"syscall/js"
+)
+
+var done = make(chan struct{})
 
 func main() {
-	fmt.Println("Hello Wasm!")
+	callback := js.NewCallback(printMessage)
+	defer callback.Close() // To defer the callback releasing is a good practice
+	setPrintMessage := js.Global().Get("setPrintMessage")
+	setPrintMessage.Invoke(callback)
+	<-done
+}
+
+func printMessage(args []js.Value) {
+	message := args[0].String()
+	fmt.Println(message + " yo ")
+	done <- struct{}{} // Notify printMessage has been called
 }
