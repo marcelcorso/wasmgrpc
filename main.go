@@ -4,12 +4,11 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"log"
 	"net"
 	"net/http"
 
 	"google.golang.org/grpc"
-
-	log "github.com/sirupsen/logrus"
 
 	pb "google.golang.org/grpc/examples/helloworld/helloworld"
 )
@@ -54,11 +53,8 @@ func setupHTTP() {
 	})
 
 	fs := http.FileServer(http.Dir("static"))
-	http.Handle("/static/", http.StripPrefix("/static", fs))
-
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "static/index.html")
-	})
+	// http.Handle("/", http.StripPrefix("/static", fs))
+	http.Handle("/", fs)
 
 	log.Println("listening http at " + *httpListenAddress)
 
