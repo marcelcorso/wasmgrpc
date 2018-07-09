@@ -1,8 +1,8 @@
 # wasmgrpc
 
-I wish I could grpc from the browser. With wasm I can "run" go in the browser. Can I then call a grpc server from there? 
+I wish I could [grpc](https://grpc.io/) from the browser. With [wasm](https://webassembly.org/) I can "run" go in the browser. Can I then call a grpc server from there? 
 
-No. 
+**No.**
 
 This repo tries to do it. And what you get is 
 
