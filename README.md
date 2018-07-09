@@ -38,11 +38,13 @@ GOARCH=wasm GOOS=js go1.11beta1 build -o static/client.wasm ./wasmclient
 
 # Run the server
 
-It's a 
+The server does 2 things: 
 
  * static file server that serves the html, js and the wasm 
  * a grpc server that implements the helloworld server
   
+
+build it and run it
 
 ```
 go1.11beta1 install
