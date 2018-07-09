@@ -22,39 +22,43 @@ license that can be found in the LICENSE file.
 		}
 		const go = new Go();
 		let mod, inst;
-		WebAssembly.instantiateStreaming(fetch("test.wasm"), go.importObject).then((result) => {
+		WebAssembly.instantiateStreaming(fetch("client.wasm"), go.importObject).then((result) => {
 			mod = result.module;
 			inst = result.instance;
 			document.getElementById("runButton").disabled = false;
 		});
 
-		let printMessage // Our reference to the Go callback
-		let printMessageReceived // Our promise
-		let resolvePrintMessageReceived // Our promise resolver
+		let sayHello // Our reference to the Go callback
+		let sayHelloReceived // Our promise
+		let resolveSayHelloReceived // Our promise resolver
 
-		function setPrintMessage(callback) {
-		        printMessage = callback
-		        resolvePrintMessageReceived()
+		function setSayHello(callback) {
+		        sayHello = callback
+		        resolveSayHelloReceived()
 		}
+
+                async function sayHelloReply(message) {
+                        document.getElementById("message").innerHTML = message;
+                }
 
 		async function run() {
 		        console.clear()
 		        // Create the Promise and store its resolve function
-		        printMessageReceived = new Promise(resolve => {
-		                resolvePrintMessageReceived = resolve
+		        sayHelloReceived = new Promise(resolve => {
+		                resolveSayHelloReceived = resolve
 		        })
 
 		        const run = go.run(inst) // Start the wasm binary
-		        await printMessageReceived // Wait for the callback reception
-		        printMessage('Hello Wasm!') // Invoke the callback
-		        await run // Wait for the binary to terminate
+		        await sayHelloReceived // Wait for the callback reception
+		        sayHello(document.getElementById("name").value) // Invoke the callback
 
 		        inst = await WebAssembly.instantiate(mod, go.importObject) // reset instance
 		}
 	</script>
 
-        <input type="text" placeholder="bob"/>
-	<button onClick="run();" id="runButton" disabled>Run</button>
+        <input id="name" type="text" placeholder="bob"/><br/>
+	<button onClick="run();" id="runButton" disabled>Run</button><br/>
+        <span id="message"></span>
 </body>
 
 </html>

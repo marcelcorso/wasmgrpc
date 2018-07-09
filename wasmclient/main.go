@@ -1,22 +1,50 @@
 package main
 
 import (
-	"fmt"
+	"context"
+	"log"
 	"syscall/js"
+
+	"google.golang.org/grpc"
+	pb "google.golang.org/grpc/examples/helloworld/helloworld"
 )
 
-var done = make(chan struct{})
+var (
+	done   = make(chan struct{})
+	client pb.GreeterClient
+)
 
 func main() {
-	callback := js.NewCallback(printMessage)
-	defer callback.Close() // To defer the callback releasing is a good practice
-	setPrintMessage := js.Global().Get("setPrintMessage")
-	setPrintMessage.Invoke(callback)
+	address := "localhost:50001"
+	conn, err := grpc.Dial(address, grpc.WithInsecure())
+
+	if err != nil {
+		log.Println("error: did not connect: %v", err)
+	}
+
+	defer conn.Close()
+	client = pb.NewGreeterClient(conn)
+
+	callback := js.NewCallback(sayHello)
+	defer callback.Close() // To defer the callback releasing is a good practice (on master its `callback.Release()`)
+	setSayHello := js.Global().Get("setSayHello")
+	setSayHello.Invoke(callback)
+
+	// run forever
 	<-done
 }
 
-func printMessage(args []js.Value) {
-	message := args[0].String()
-	fmt.Println(message + " yo ")
-	done <- struct{}{} // Notify printMessage has been called
+func sayHello(args []js.Value) {
+	name := args[0].String()
+
+	req := &pb.HelloRequest{
+		Name: name,
+	}
+
+	resp, err := client.SayHello(context.Background(), req)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	js.Global().Get("sayHelloReply").Invoke(resp.Message)
 }

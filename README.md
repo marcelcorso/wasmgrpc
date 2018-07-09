@@ -19,7 +19,7 @@ go1.11beta1 download
 ``` 
 
 ```
-GOARCH=wasm GOOS=js go1.11beta1 build -o static/test.wasm ./wasmclient
+GOARCH=wasm GOOS=js go1.11beta1 build -o static/client.wasm ./wasmclient
 ``
 
 
